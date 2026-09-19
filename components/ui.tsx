@@ -64,9 +64,9 @@ const TEXT: Record<Tone, string> = {
 /** A small square marker + label. Replaces pill badges: the colour is a signal, not a fill. */
 export function Mark({ tone = "neutral", children, title, mono = false }: { tone?: Tone; children: ReactNode; title?: string; mono?: boolean }) {
   return (
-    <span title={title} className={`inline-flex items-center gap-1.5 text-xs leading-4 ${TEXT[tone]} ${mono ? "font-mono" : ""}`}>
-      <span aria-hidden className={`inline-block size-1.5 shrink-0 rounded-[1px] ${MARK[tone]}`} />
-      {children}
+    <span title={title} className={`inline-flex max-w-full items-start gap-1.5 text-xs leading-4 ${TEXT[tone]} ${mono ? "font-mono" : ""}`}>
+      <span aria-hidden className={`mt-[5px] inline-block size-1.5 shrink-0 rounded-[1px] ${MARK[tone]}`} />
+      <span className="min-w-0 [overflow-wrap:anywhere]">{children}</span>
     </span>
   );
 }

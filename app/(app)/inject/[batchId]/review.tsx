@@ -174,13 +174,13 @@ export function Review({
       <table className="mt-2 w-full table-fixed text-sm">
         <colgroup>
           <col className="w-[6.5rem]" />
-          <col className="w-[14rem]" />
-          <col className="w-[16rem]" />
+          <col className="w-[13rem]" />
+          <col className="w-[15rem]" />
           <col className="w-[6.5rem]" />
-          <col className="w-[8rem]" />
+          <col className="w-[7.5rem]" />
           <col className="w-[7rem]" />
           <col />
-          <col className="w-[12.5rem]" />
+          <col className="w-[11.5rem]" />
         </colgroup>
         <thead className="text-left text-muted small-caps-label">
           <tr className="border-b border-rule">
@@ -267,12 +267,12 @@ function Row({
           <div className="mt-0.5 text-neutral">{r.sheetKind.replace("_", " ")}</div>
         </td>
         <td className="py-2.5 pr-3">
-          <div className="truncate" title={r.normalized.unitSkpd ?? ""}>
-            {r.normalized.unitSkpd}
+          <div className="truncate" title={`Di file: ${r.normalized.unitSkpd ?? "—"}`}>
+            {skpd.label ?? r.normalized.unitSkpd}
           </div>
-          <div className="mt-0.5 flex items-center gap-2">
+          <div className="mt-0.5 truncate whitespace-nowrap">
             <Mark tone={METHOD[skpd.method].tone}>{METHOD[skpd.method].label}</Mark>
-            {skpd.value && <Code className="text-neutral">{skpd.value}</Code>}
+            {skpd.value && <Code className="ml-2 text-neutral">{skpd.value}</Code>}
           </div>
         </td>
         <td className="py-2.5 pr-3">
