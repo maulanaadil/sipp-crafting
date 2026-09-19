@@ -38,28 +38,33 @@ export default async function BatchPage({ params }: { params: Promise<{ batchId:
 
   return (
     <div>
-      <nav className="font-mono text-xs text-muted">
+      <nav aria-label="Lokasi" className="text-xs text-muted">
         <Link href="/inject" className="hover:text-ink">
           Batch inject
-        </Link>{" "}
-        <span className="text-neutral">/</span> {batch.id.slice(0, 8)}
+        </Link>
+        <span className="mx-1.5 text-neutral">/</span>
+        <span className="text-ink">{batch.pemdaNama ?? "Pemda tidak terdeteksi"}</span>
       </nav>
 
-      <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div>
+      <div className="mt-2 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2 border-b border-rule pb-5">
+        <div className="min-w-0">
           <h1 className="text-[1.75rem] font-semibold leading-[1.1] tracking-[-0.025em]">
-            {batch.pemdaNama ?? "Pemda tidak terdeteksi"} <Code className="ml-1 font-normal text-neutral">{batch.pemdaKode}</Code>
+            {batch.pemdaNama ?? "Pemda tidak terdeteksi"}
+            {batch.pemdaKode && <Code className="ml-2 align-baseline text-[1rem] font-normal text-neutral">{batch.pemdaKode}</Code>}
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            {batch.fileName} · tahun {batch.tahun} · diunggah {fmtDate(batch.uploadedAt)} oleh {batch.uploadedBy}
+          <p className="mt-2 truncate text-sm text-muted" title={batch.fileName}>
+            {batch.fileName}
+          </p>
+          <p className="mt-0.5 text-xs text-neutral">
+            Tahun RKPD {batch.tahun} · diunggah {fmtDate(batch.uploadedAt)} oleh {batch.uploadedBy} · batch <Code>{batch.id.slice(0, 8)}</Code>
           </p>
         </div>
-        <div className="text-sm lg:text-right">
+        <div className="text-sm">
           {batch.status === "applied" ? (
-            <Mark tone="ok">Semua baris sudah ditulis {batch.appliedAt && `· ${fmtDate(batch.appliedAt)}`}</Mark>
+            <Mark tone="ok">Semua baris ditulis{batch.appliedAt && ` · ${fmtDate(batch.appliedAt)}`}</Mark>
           ) : s.applied > 0 ? (
             <Mark tone="accent">
-              {s.applied} baris ditulis · {remaining} masih ditinjau
+              {s.applied} ditulis · {remaining} masih ditinjau
             </Mark>
           ) : (
             <Mark tone="accent">Tahap tinjau · {remaining} baris</Mark>
@@ -68,7 +73,7 @@ export default async function BatchPage({ params }: { params: Promise<{ batchId:
       </div>
 
       {(batch.warnings.length > 0 || batch.notes) && (
-        <ul className="mt-6 space-y-1 border-l-2 border-warn pl-3 text-sm text-ink-2">
+        <ul className="my-5 space-y-1 border-l-2 border-warn pl-3 text-sm text-ink-2">
           {batch.warnings.map((w, i) => (
             <li key={i}>{w}</li>
           ))}
@@ -76,13 +81,13 @@ export default async function BatchPage({ params }: { params: Promise<{ batchId:
         </ul>
       )}
 
-      <dl className="mt-8 grid grid-cols-2 border-y border-rule sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-rule [&>div]:lg:pl-6 [&>div:first-child]:lg:pl-0">
+      <dl className="grid grid-cols-2 border-b border-rule sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-rule [&>div]:lg:pl-6 [&>div:first-child]:lg:pl-0">
         <Stat label="Baris" value={s.rows} hint={s.sheets.map((x) => `${x.dataRows} ${x.kind.replace("_", " ")}`).join(" · ")} />
         <Stat label="Update" value={s.byAction.update} hint="usulan sudah ada" />
         <Stat label="Insert" value={s.byAction.insert} hint="dari baris RKPD" />
         <Stat label="Insert + RKPD baru" value={s.byAction.insert_with_rkpd} hint="perlu konfirmasi" tone={s.byAction.insert_with_rkpd ? "warn" : "neutral"} />
         <Stat label="Error" value={s.byAction.error} hint="tidak bisa ditulis" tone={s.byAction.error ? "danger" : "neutral"} />
-        <Stat label="Ditulis" value={s.applied} hint={`${s.byDecision.approved - s.applied} disetujui menunggu · ${s.byDecision.rejected} ditolak`} tone={s.applied ? "ok" : "neutral"} />
+        <Stat label="Ditulis" value={s.applied} hint={`${s.byDecision.approved - s.applied} siap ditulis · ${s.byDecision.pending} menunggu · ${s.byDecision.rejected} ditolak`} tone={s.applied ? "ok" : "neutral"} />
       </dl>
 
       <div className="mt-8">
