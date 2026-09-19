@@ -43,6 +43,7 @@ async function main() {
   if ((await firstRow.count()) && !(await firstRow.innerText()).includes("Tidak ada baris")) {
     await firstRow.click();
     await page.waitForSelector("text=Rencana penulisan");
+    await page.waitForTimeout(500); // let the disclosure transition settle before shooting
     await page.screenshot({ path: out("03-row-detail.png"), fullPage: true });
   }
   await page.getByRole("tab", { name: /^Semua/ }).click();
