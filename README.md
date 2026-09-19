@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SIPPP · Inject
 
-## Getting Started
+Rebuild of the SIPPP (Bappenas, Musrenbang Otsus Papua) **inject** flow in Next.js: upload a
+pendampingan spreadsheet, get every row cleaned, matched against the legacy tables and classified
+(update / insert / insert + RKPD / error), review it, then write it — nothing touches the legacy
+tables until an operator approves and presses *Terapkan*.
 
-First, run the development server:
+- Contract & rules: [`docs/INJECT-CONTRACT.md`](docs/INJECT-CONTRACT.md)
+- Decisions, gaps, things to confirm: [`docs/REMARKS.md`](docs/REMARKS.md)
+
+## Setup (local)
+
+Requirements: Node ≥ 20, Docker Postgres `bitbybit-postgres` (pg15) with database `sippp_next`
+cloned from the legacy `sipppv2` dump (`create database sippp_next template sipppv2; create extension pg_trgm;`).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+cp .env.local.example .env.local   # or ask a teammate; see variables below
+npm run db:migrate                 # creates schema `inject`
+npm run db:seed                    # local super-admin: inject_dev / inject123
+npm run dev -- --port 3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | `postgres://postgres:<pw>@127.0.0.1:5432/sippp_next` |
+| `SESSION_SECRET` | ≥ 32 random chars, signs the session cookie |
+| `INJECT_TAHUN` | RKPD year the spreadsheets belong to (2027) |
+| `INJECT_SUGGESTER` | `rules` (local trigram, default) or `none`. No LLM is wired; nothing leaves the machine. |
+| `DEV_ADMIN_USERNAME` / `DEV_ADMIN_PASSWORD` | credentials created by `db:seed` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Commands
 
-## Learn More
+| Command | What |
+|---|---|
+| `npm test` | unit tests for the pipeline (no DB needed) |
+| `npm run typecheck` / `npm run lint` | |
+| `npm run inject:cli -- "<file.xlsx>" [--pemda 94.08]` | dry-run a spreadsheet, prints the review table, creates a batch (writes nothing to legacy tables) |
+| `npx tsx --env-file=.env.local scripts/ui-smoke.ts "<file.xlsx>" [--apply]` | drives the real UI with Playwright, screenshots into `.context/` |
 
-To learn more about Next.js, take a look at the following resources:
+## Layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/(auth)/login          legacy mst_users login (bcrypt $2y$), JWT cookie
+app/(app)/inject          batch list + upload; [batchId] review & apply
+lib/inject/parse.ts       xlsx → rows            lib/inject/resolve.ts   names → ids (exact/alias/fuzzy)
+lib/inject/classify.ts    update/insert/error    lib/inject/apply.ts     transactional writes + audit
+lib/inject/store.ts       inject.* persistence   lib/inject/suggest.ts   pluggable fuzzy backend
+db/migrations             schema `inject` (batch, row, alias, audit_log)
+```

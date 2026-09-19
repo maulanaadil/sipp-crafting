@@ -17,3 +17,7 @@ icon = "hammer"
 [scripts.run.lint]
 command = "npm run lint"
 icon = "list-checks"
+
+[scripts.run.test]
+command = "npm test"
+icon = "test-tube"
