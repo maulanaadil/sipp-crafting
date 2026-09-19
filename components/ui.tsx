@@ -66,7 +66,7 @@ export function Mark({ tone = "neutral", children, title, mono = false }: { tone
   return (
     <span title={title} className={`inline-flex max-w-full items-start gap-1.5 text-xs leading-4 ${TEXT[tone]} ${mono ? "font-mono" : ""}`}>
       <span aria-hidden className={`mt-[5px] inline-block size-1.5 shrink-0 rounded-[1px] ${MARK[tone]}`} />
-      <span className="min-w-0 [overflow-wrap:anywhere]">{children}</span>
+      <span className="min-w-0 break-words">{children}</span>
     </span>
   );
 }

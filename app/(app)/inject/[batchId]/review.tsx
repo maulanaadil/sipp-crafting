@@ -180,7 +180,7 @@ export function Review({
           <col className="w-[7.5rem]" />
           <col className="w-[7rem]" />
           <col />
-          <col className="w-[11.5rem]" />
+          <col className="w-[12.5rem]" />
         </colgroup>
         <thead className="text-left text-muted small-caps-label">
           <tr className="border-b border-rule">
@@ -295,17 +295,17 @@ function Row({
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {errors.map((i, k) => (
               <Mark key={`e${k}`} tone="danger" mono title={i.message}>
-                {i.code}
+                <IssueCode code={i.code} />
               </Mark>
             ))}
             {warnings.map((i, k) => (
               <Mark key={`w${k}`} tone="warn" mono title={i.message}>
-                {i.code}
+                <IssueCode code={i.code} />
               </Mark>
             ))}
             {infos.map((i, k) => (
               <Mark key={`i${k}`} tone="neutral" mono title={i.message}>
-                {i.code}
+                <IssueCode code={i.code} />
               </Mark>
             ))}
           </div>
@@ -616,12 +616,31 @@ function KV({ k, v }: { k: string; v: unknown }) {
   );
 }
 
+/** Issue codes are long snake_case identifiers; let them break after underscores, never mid-word. */
+function IssueCode({ code }: { code: string }) {
+  const parts = code.split("_");
+  return (
+    <>
+      {parts.map((p, i) => (
+        <span key={i}>
+          {i > 0 && (
+            <>
+              _<wbr />
+            </>
+          )}
+          {p}
+        </span>
+      ))}
+    </>
+  );
+}
+
 function IssueLine({ i }: { i: Issue }) {
   const tone: Tone = i.level === "error" ? "danger" : i.level === "warn" ? "warn" : "neutral";
   return (
     <li className="flex gap-2 text-xs text-ink-2">
       <Mark tone={tone} mono>
-        {i.code}
+        <IssueCode code={i.code} />
       </Mark>
       <span className="text-muted">{i.message}</span>
     </li>
