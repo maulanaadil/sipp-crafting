@@ -4,7 +4,7 @@ import { canAccessPemda, canUse, FITUR, requireUser } from "@/lib/auth/session";
 import { loadRefData } from "@/lib/inject/reference-db";
 import { getBatch, listRows } from "@/lib/inject/store";
 import { fmtDate } from "@/lib/format";
-import { Badge, Card, Tile } from "@/components/ui";
+import { Code, Mark, Stat } from "@/components/ui";
 import { Review, type Options, type SerializedRow } from "./review";
 
 export default async function BatchPage({ params }: { params: Promise<{ batchId: string }> }) {
@@ -34,73 +34,60 @@ export default async function BatchPage({ params }: { params: Promise<{ batchId:
 
   const s = batch.summary;
   const approvedPending = rows.filter((r) => r.decision === "approved" && !r.appliedAt).length;
+  const remaining = rows.filter((r) => !r.appliedAt && r.action !== "error" && r.decision !== "rejected").length;
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <nav className="font-mono text-xs text-muted">
+        <Link href="/inject" className="hover:text-ink">
+          Batch inject
+        </Link>{" "}
+        <span className="text-neutral">/</span> {batch.id.slice(0, 8)}
+      </nav>
+
+      <div className="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div>
-          <div className="text-xs text-zinc-500">
-            <Link href="/inject" className="hover:underline">
-              Batch inject
-            </Link>{" "}
-            / {batch.id.slice(0, 8)}
-          </div>
-          <h1 className="mt-0.5 text-xl font-semibold tracking-tight">
-            {batch.pemdaNama ?? "Pemda tidak terdeteksi"} <span className="font-mono text-base font-normal text-zinc-500">{batch.pemdaKode}</span>
+          <h1 className="text-[1.75rem] font-semibold leading-[1.1] tracking-[-0.025em]">
+            {batch.pemdaNama ?? "Pemda tidak terdeteksi"} <Code className="ml-1 font-normal text-neutral">{batch.pemdaKode}</Code>
           </h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="mt-2 text-sm text-muted">
             {batch.fileName} · tahun {batch.tahun} · diunggah {fmtDate(batch.uploadedAt)} oleh {batch.uploadedBy}
-            {batch.appliedAt && (
-              <>
-                {" "}
-                · <span className="text-emerald-700">diterapkan {fmtDate(batch.appliedAt)} oleh {batch.appliedBy}</span>
-              </>
-            )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="text-sm lg:text-right">
           {batch.status === "applied" ? (
-            <Badge tone="success">Semua diterapkan</Badge>
+            <Mark tone="ok">Semua baris sudah ditulis {batch.appliedAt && `· ${fmtDate(batch.appliedAt)}`}</Mark>
           ) : s.applied > 0 ? (
-            <Badge tone="info">Sebagian diterapkan · {s.applied} baris</Badge>
+            <Mark tone="accent">
+              {s.applied} baris ditulis · {remaining} masih ditinjau
+            </Mark>
           ) : (
-            <Badge tone="info">Tahap tinjau</Badge>
+            <Mark tone="accent">Tahap tinjau · {remaining} baris</Mark>
           )}
         </div>
       </div>
 
       {(batch.warnings.length > 0 || batch.notes) && (
-        <Card className="border-amber-200 bg-amber-50/60 p-3 text-sm text-amber-900">
-          <ul className="list-disc space-y-0.5 pl-5">
-            {batch.warnings.map((w, i) => (
-              <li key={i}>{w}</li>
-            ))}
-            {batch.notes && <li className="text-red-800">{batch.notes}</li>}
-          </ul>
-        </Card>
+        <ul className="mt-6 space-y-1 border-l-2 border-warn pl-3 text-sm text-ink-2">
+          {batch.warnings.map((w, i) => (
+            <li key={i}>{w}</li>
+          ))}
+          {batch.notes && <li className="text-danger">{batch.notes}</li>}
+        </ul>
       )}
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-        <Tile label="Baris" value={s.rows} hint={s.sheets.map((x) => `${x.dataRows} ${x.kind}`).join(" · ")} />
-        <Tile label="Update" value={s.byAction.update} hint="usulan sudah ada" />
-        <Tile label="Insert" value={s.byAction.insert} hint="dari baris RKPD" tone="info" />
-        <Tile label="Insert + RKPD baru" value={s.byAction.insert_with_rkpd} hint="perlu konfirmasi" tone="warn" />
-        <Tile label="Error" value={s.byAction.error} hint="tidak bisa ditulis" tone={s.byAction.error ? "error" : "neutral"} />
-        <Tile
-          label="Disetujui"
-          value={`${s.byDecision.approved}`}
-          hint={`${s.applied} diterapkan · ${s.byDecision.pending} belum diputuskan · ${s.byDecision.rejected} ditolak`}
-          tone="success"
-        />
-      </div>
+      <dl className="mt-8 grid grid-cols-2 border-y border-rule sm:grid-cols-3 lg:grid-cols-6 lg:divide-x lg:divide-rule [&>div]:lg:pl-6 [&>div:first-child]:lg:pl-0">
+        <Stat label="Baris" value={s.rows} hint={s.sheets.map((x) => `${x.dataRows} ${x.kind.replace("_", " ")}`).join(" · ")} />
+        <Stat label="Update" value={s.byAction.update} hint="usulan sudah ada" />
+        <Stat label="Insert" value={s.byAction.insert} hint="dari baris RKPD" />
+        <Stat label="Insert + RKPD baru" value={s.byAction.insert_with_rkpd} hint="perlu konfirmasi" tone={s.byAction.insert_with_rkpd ? "warn" : "neutral"} />
+        <Stat label="Error" value={s.byAction.error} hint="tidak bisa ditulis" tone={s.byAction.error ? "danger" : "neutral"} />
+        <Stat label="Ditulis" value={s.applied} hint={`${s.byDecision.approved - s.applied} disetujui menunggu · ${s.byDecision.rejected} ditolak`} tone={s.applied ? "ok" : "neutral"} />
+      </dl>
 
-      <Review
-        batchId={batch.id}
-        rows={JSON.parse(JSON.stringify(rows)) as SerializedRow[]}
-        options={options}
-        canEdit={canEdit}
-        approvedPending={approvedPending}
-      />
+      <div className="mt-8">
+        <Review batchId={batch.id} rows={JSON.parse(JSON.stringify(rows)) as SerializedRow[]} options={options} canEdit={canEdit} approvedPending={approvedPending} />
+      </div>
     </div>
   );
 }

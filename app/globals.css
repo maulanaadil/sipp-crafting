@@ -1,36 +1,101 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
-:root {
-  --background: #fafafa;
-  --foreground: #18181b;
-  /* strong ease-out for UI interactions */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-}
-
+/* Expose Hallmark tokens to Tailwind utilities: bg-paper, text-ink, border-rule, text-ok … */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--color-paper);
+  --color-paper-2: var(--color-paper-2);
+  --color-paper-3: var(--color-paper-3);
+  --color-rule: var(--color-rule);
+  --color-rule-2: var(--color-rule-2);
+  --color-neutral: var(--color-neutral);
+  --color-muted: var(--color-muted);
+  --color-ink: var(--color-ink);
+  --color-ink-2: var(--color-ink-2);
+  --color-accent: var(--color-accent);
+  --color-accent-ink: var(--color-accent-ink);
+  --color-focus: var(--color-focus);
+  --color-ok: var(--color-ok);
+  --color-warn: var(--color-warn);
+  --color-danger: var(--color-danger);
+  --color-ok-soft: var(--color-ok-soft);
+  --color-warn-soft: var(--color-warn-soft);
+  --color-danger-soft: var(--color-danger-soft);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius);
   --ease-out: var(--ease-out);
 }
 
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  font-feature-settings: "tnum" 1, "cv11" 1;
+  overflow-x: clip;
 }
 
-/* Pressable things acknowledge the press. */
-.pressable {
-  transition: transform 150ms var(--ease-out), background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
-}
-.pressable:active:not(:disabled) {
-  transform: scale(0.97);
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  font-feature-settings: "cv11" 1, "ss01" 1;
 }
 
-/* Expand/collapse of table row details: no motion, it is used dozens of times per batch. */
+/* Numbers in tables and stats never wobble. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Focus: instant, visible, same everywhere. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* Controls: constant 1px border, state changes go to background/outline only. */
+.control {
+  height: 36px;
+  border: var(--rule) solid var(--color-rule-2);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  border-radius: var(--radius);
+  padding-inline: var(--space-md);
+  font-size: var(--text-sm);
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .control:hover:not(:disabled) {
+    background: var(--color-paper-2);
+  }
+}
+.control:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.control::placeholder {
+  color: var(--color-neutral);
+}
+.control[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+/* Pressable: colour shift on hover, 1px press, no scale, no transition-all. */
+.press {
+  transition:
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-out),
+    transform 80ms var(--ease-out);
+}
+.press:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 details > summary {
   list-style: none;
 }
@@ -39,10 +104,11 @@ details > summary::-webkit-details-marker {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pressable {
-    transition: background-color 150ms ease, border-color 150ms ease, opacity 150ms ease;
+  .press,
+  .control {
+    transition: none;
   }
-  .pressable:active:not(:disabled) {
+  .press:active:not(:disabled) {
     transform: none;
   }
 }

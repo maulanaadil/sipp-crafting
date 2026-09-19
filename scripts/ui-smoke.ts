@@ -29,7 +29,7 @@ async function main() {
   console.log("logged in");
 
   await page.setInputFiles('input[type="file"]', file);
-  await page.click('button:has-text("Unggah & periksa")');
+  await page.click('button:has-text("Unggah dan periksa")');
   await page.waitForURL(/\/inject\/[0-9a-f-]{36}$/, { timeout: 120_000 });
   const batchUrl = page.url();
   console.log("batch", batchUrl);
@@ -37,7 +37,7 @@ async function main() {
   await page.screenshot({ path: out("02-review.png"), fullPage: false });
 
   // open first row that needs review to show the detail panel
-  const reviewTab = page.getByRole("button", { name: /Perlu tinjau/ });
+  const reviewTab = page.getByRole("tab", { name: /Perlu tinjau/ });
   await reviewTab.click();
   const firstRow = page.locator("table tbody tr").first();
   if ((await firstRow.count()) && !(await firstRow.innerText()).includes("Tidak ada baris")) {
@@ -45,16 +45,16 @@ async function main() {
     await page.waitForSelector("text=Rencana penulisan");
     await page.screenshot({ path: out("03-row-detail.png"), fullPage: true });
   }
-  await page.getByRole("button", { name: /^Semua/ }).click();
+  await page.getByRole("tab", { name: /^Semua/ }).click();
 
   await page.getByRole("button", { name: "Setujui baris bersih" }).click();
-  await page.waitForSelector("text=baris bersih disetujui");
+  await page.waitForSelector("text=/baris bersih disetujui/");
   console.log("approved clean rows:", await page.locator("[role=status]").innerText());
   await page.screenshot({ path: out("04-approved.png") });
 
   if (apply) {
-    await page.getByRole("button", { name: /^Terapkan \d+ baris/ }).click();
-    await page.getByRole("button", { name: "Ya, terapkan" }).click();
+    await page.getByRole("button", { name: /^Tulis \d+ baris/ }).click();
+    await page.getByRole("button", { name: "Ya, tulis sekarang" }).click();
     await page.waitForSelector("text=/diterapkan ke database|Gagal/", { timeout: 120_000 });
     console.log("apply:", await page.locator("[role=status]").innerText());
     await page.screenshot({ path: out("05-applied.png") });
