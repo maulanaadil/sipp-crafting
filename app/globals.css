@@ -40,6 +40,54 @@ body {
   font-size: var(--text-md);
   line-height: 1.5;
   font-feature-settings: "cv11" 1, "ss01" 1;
+  font-optical-sizing: auto;
+}
+
+/* Tracking is size-specific: small labels open up a touch, display text tightens (set inline). */
+.small-caps-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.01em;
+}
+
+/* Floating chrome: translucent material, content scrolls underneath, soft edge instead of a rule. */
+.material {
+  background: var(--material);
+  -webkit-backdrop-filter: blur(var(--material-blur)) saturate(160%);
+  backdrop-filter: blur(var(--material-blur)) saturate(160%);
+}
+.scroll-edge {
+  position: relative;
+}
+.scroll-edge::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -10px 0;
+  height: 10px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--material), var(--material-edge));
+}
+
+/* Disclosure: opens from the row it belongs to, along the same path it closes on;
+   a CSS transition re-targets from the live value, so a mid-flight click reverses smoothly. */
+.disclosure {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--dur-settle) var(--ease-settle),
+    opacity var(--dur-med) var(--ease-out);
+}
+.disclosure[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  @starting-style {
+    grid-template-rows: 0fr;
+    opacity: 0;
+  }
+}
+.disclosure > div {
+  min-height: 0;
+  overflow: clip;
 }
 
 /* Numbers in tables and stats never wobble. */
@@ -110,5 +158,29 @@ details > summary::-webkit-details-marker {
   }
   .press:active:not(:disabled) {
     transform: none;
+  }
+  .disclosure {
+    transition: opacity var(--dur-med) ease;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .material {
+    background: var(--color-paper);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .scroll-edge::after {
+    background: var(--color-rule);
+    height: 1px;
+    bottom: -1px;
+  }
+}
+@media (prefers-contrast: more) {
+  .material {
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-ink-2);
+  }
+  .control {
+    border-color: var(--color-ink-2);
   }
 }

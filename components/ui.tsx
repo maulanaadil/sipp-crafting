@@ -80,7 +80,7 @@ export function Code({ children, className = "" }: { children: ReactNode; classN
 export function Stat({ label, value, hint, tone = "neutral" }: { label: string; value: ReactNode; hint?: string; tone?: Tone }) {
   return (
     <div className="min-w-0 py-3 pr-6">
-      <dt className="text-xs text-muted">{label}</dt>
+      <dt className="small-caps-label text-muted">{label}</dt>
       <dd className={`tnum mt-0.5 text-[1.75rem] font-semibold leading-none tracking-[-0.02em] ${tone === "neutral" ? "text-ink" : TEXT[tone]}`}>{value}</dd>
       {hint && <dd className="mt-1.5 line-clamp-2 text-xs leading-4 text-neutral">{hint}</dd>}
     </div>

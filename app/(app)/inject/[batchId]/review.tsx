@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useState, useTransition } from "react";
 import { Button, Code, Mark, type Tone } from "@/components/ui";
 import { fmtIDR, fmtNum } from "@/lib/format";
 import type { RowRecord } from "@/lib/inject/store";
@@ -182,7 +182,7 @@ export function Review({
           <col />
           <col className="w-[12.5rem]" />
         </colgroup>
-        <thead className="sticky top-11 z-[1] bg-paper text-left text-xs text-muted">
+        <thead className="text-left text-muted small-caps-label">
           <tr className="border-b border-rule">
             <th className="py-2 pr-3 font-normal">Baris</th>
             <th className="py-2 pr-3 font-normal">Unit SKPD</th>
@@ -227,22 +227,43 @@ function Row({
   batchId: string;
 }) {
   const [open, setOpen] = useState(false);
+  // stay mounted while collapsing so the panel leaves along the path it arrived on
+  const [mounted, setMounted] = useState(false);
+  const panelId = useId();
   const errors = r.issues.filter((i) => i.level === "error");
   const warnings = r.issues.filter((i) => i.level === "warn");
   const infos = r.issues.filter((i) => i.level === "info" && i.code !== "SUDAH_SESUAI");
   const skpd = r.resolved.unitSkpdKode;
+  const toggle = () => {
+    if (!open) setMounted(true); // mount first; @starting-style animates the panel in
+    setOpen((o) => !o);
+  };
 
   return (
     <>
       <tr
-        className={`scroll-mt-24 cursor-pointer border-b align-top transition-colors duration-[var(--dur-short)] ${
+        className={`cursor-pointer border-b align-top transition-colors duration-[var(--dur-short)] ${
           open ? "border-transparent bg-paper-2" : "border-rule hover:bg-paper-2"
         }`}
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
+        onClick={toggle}
       >
         <td className="py-2.5 pr-3 text-xs text-muted">
-          <span className="tnum font-mono text-ink">{r.rowNo}</span>
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={mounted ? panelId : undefined}
+            aria-label={`${open ? "Tutup" : "Buka"} rincian baris ${r.rowNo}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggle();
+            }}
+            className="press -m-1 inline-flex items-center gap-1 rounded-sm p-1 text-ink"
+          >
+            <span aria-hidden className={`inline-block text-neutral transition-transform duration-[var(--dur-med)] ${open ? "rotate-90" : ""}`}>
+              ›
+            </span>
+            <span className="tnum font-mono">{r.rowNo}</span>
+          </button>
           <div className="mt-0.5 text-neutral">{r.sheetKind.replace("_", " ")}</div>
         </td>
         <td className="py-2.5 pr-3">
@@ -295,24 +316,42 @@ function Row({
           ) : (
             <div className="flex items-center gap-2">
               <Mark tone={DECISION[r.decision].tone}>{DECISION[r.decision].label}</Mark>
-              {canEdit && r.action !== "error" && r.decision !== "approved" && (
+              {canEdit && r.action !== "error" && r.decision === "pending" && (
                 <Button size="sm" variant="primary" disabled={pending} onClick={() => run(() => decideRows(batchId, [r.id], "approved"))}>
                   Setujui
                 </Button>
               )}
-              {canEdit && r.decision !== "rejected" && (
+              {canEdit && r.decision === "pending" && (
                 <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => decideRows(batchId, [r.id], "rejected"))}>
                   Tolak
+                </Button>
+              )}
+              {canEdit && r.decision !== "pending" && (
+                <Button size="sm" variant="ghost" disabled={pending} onClick={() => run(() => decideRows(batchId, [r.id], "pending"))}>
+                  Batalkan
                 </Button>
               )}
             </div>
           )}
         </td>
       </tr>
-      {open && (
-        <tr className="border-b border-rule bg-paper-2">
-          <td colSpan={8} className="px-3 pb-6 pt-2">
-            <Detail r={r} options={options} canEdit={canEdit} pending={pending} run={run} batchId={batchId} />
+      {mounted && (
+        <tr className={`border-b bg-paper-2 ${open ? "border-rule" : "border-transparent"}`}>
+          <td colSpan={8} className="p-0">
+            <div
+              id={panelId}
+              className="disclosure"
+              data-open={open}
+              onTransitionEnd={(e) => {
+                if (!open && e.propertyName === "grid-template-rows") setMounted(false);
+              }}
+            >
+              <div>
+                <div className="px-3 pb-6 pt-2">
+                  <Detail r={r} options={options} canEdit={canEdit} pending={pending} run={run} batchId={batchId} />
+                </div>
+              </div>
+            </div>
           </td>
         </tr>
       )}

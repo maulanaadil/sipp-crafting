@@ -7,7 +7,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await requireUser();
   return (
     <>
-      <header className="sticky top-0 z-10 border-b border-rule bg-paper">
+      <header className="material scroll-edge sticky top-0 z-10">
         <div className="mx-auto flex h-11 max-w-7xl items-center justify-between px-6">
           <Link href="/inject" className="font-mono text-xs text-ink">
             SIPPP <span className="text-neutral">/</span> Inject

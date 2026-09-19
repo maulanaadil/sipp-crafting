@@ -54,7 +54,7 @@ export default async function InjectPage() {
               <col className="w-[11rem]" />
               <col className="w-[13rem]" />
             </colgroup>
-            <thead className="text-left text-xs text-muted">
+            <thead className="text-left text-muted small-caps-label">
               <tr className="border-b border-rule">
                 <th className="py-2 pr-4 font-normal">Pemda</th>
                 <th className="py-2 pr-4 font-normal">File</th>
