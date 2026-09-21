@@ -5,6 +5,7 @@ pendampingan spreadsheet, get every row cleaned, matched against the legacy tabl
 (update / insert / insert + RKPD / error), review it, then write it — nothing touches the legacy
 tables until an operator approves and presses *Terapkan*.
 
+- **How to run it, step by step: [`docs/RUNNING.md`](docs/RUNNING.md)**
 - Contract & rules: [`docs/INJECT-CONTRACT.md`](docs/INJECT-CONTRACT.md)
 - Decisions, gaps, things to confirm: [`docs/REMARKS.md`](docs/REMARKS.md)
 

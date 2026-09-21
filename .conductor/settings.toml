@@ -1,7 +1,8 @@
 "$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
 
 [scripts]
-setup = "npm ci"
+# migration is idempotent; skipped quietly when the database is not reachable so workspace creation never fails on it
+setup = "npm ci && (npm run -s db:migrate || echo 'db:migrate skipped - see docs/RUNNING.md')"
 run_mode = "concurrent"
 
 [scripts.run.dev]
