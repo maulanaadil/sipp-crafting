@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2026-09-19",
+    "scope": "component (app UI)",
+    "macrostructure": "none — internal data tool",
+    "theme": "custom",
+    "theme_axes": "light / grotesk-sans / cool",
+    "vibe": "cool instrument panel, hairlines, one cobalt signal",
+    "enrichment": "none",
+    "brief": "SIPPP Inject · login, batch list/upload, review table"
+  }
+]

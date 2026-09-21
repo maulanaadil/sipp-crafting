@@ -1,0 +1,67 @@
+/* Hallmark · component: app-ui (inject tool) · genre: modern-minimal · theme: custom
+ * vibe: "cool instrument panel, hairlines, one cobalt signal" · paper oklch(98.5% 0.004 250) · accent oklch(50% 0.19 262) cobalt
+ * display: Geist 600 · body: Geist 400 · outlier: Geist Mono (codes, amounts)
+ * axes: light / grotesk-sans / cool · states: default · hover · focus · active · disabled · loading · error · success
+ * pre-emit critique: P4 H4 E4 S4 R5 V3
+ */
+:root {
+  /* paper → ink, all tinted toward the cool anchor (hue 250) */
+  --color-paper: oklch(98.5% 0.004 250);
+  --color-paper-2: oklch(96.6% 0.005 250);
+  --color-paper-3: oklch(94% 0.007 250);
+  --color-rule: oklch(89% 0.008 250);
+  --color-rule-2: oklch(80% 0.01 250);
+  --color-neutral: oklch(58% 0.014 250);
+  --color-muted: oklch(44% 0.014 250);
+  --color-ink-2: oklch(30% 0.016 250);
+  --color-ink: oklch(19% 0.018 250);
+
+  /* one signal accent — focus rings, active filter, links. Never a fill. */
+  --color-accent: oklch(50% 0.19 262);
+  --color-accent-ink: oklch(42% 0.17 262);
+  --color-focus: var(--color-accent);
+
+  /* semantic inks: markers and text only */
+  --color-ok: oklch(48% 0.13 152);
+  --color-warn: oklch(58% 0.14 68);
+  --color-danger: oklch(50% 0.19 27);
+  --color-ok-soft: oklch(95.5% 0.03 152);
+  --color-warn-soft: oklch(96% 0.035 80);
+  --color-danger-soft: oklch(96% 0.025 27);
+
+  --font-display: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* 4-pt scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 40px;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-display: 2.25rem;
+
+  --radius-sm: 4px;
+  --radius: 6px;
+  --rule: 1px;
+
+  /* translucent chrome (Apple "material"): content scrolls under it */
+  --material: oklch(98.5% 0.004 250 / 0.78);
+  --material-edge: oklch(98.5% 0.004 250 / 0);
+  --material-blur: 16px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* critically-damped settle (damping 1.0, response ≈ 0.3s) approximated as a curve */
+  --ease-settle: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-short: 120ms;
+  --dur-med: 180ms;
+  --dur-settle: 260ms;
+}
